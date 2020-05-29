@@ -34,71 +34,82 @@ class Node():
         self.fCost = self.gCost + self.hCost
     
 
-def manhattan_distance(source, goal):
-    return abs(source[0] - goal[0]) + abs(source[1] - goal[1])
+class AStar:
 
-def return_index(items, position):
-    for i, item in enumerate(items):
-        if item.position == position:
-            return i
+    def __init__(self, maze, start, end, isNeighboursAllowed=True):
+        self.openList = []
+        self.closedList = []
+        self.openListPositions = []
+        self.path = []
+        self.isNeighboursAllowed = isNeighboursAllowed
+        self.maze = maze
+        self.startPosition = start
+        self.endPosition = end
+        self.startNode = Node(start)
+        self.endNode = Node(end)
+        self.find_path()
 
-def astar(maze, start: tuple, end: tuple):
-    
-    startNode = Node(start)
-    endNode = Node(end)
+    def manhattan_distance(self, source, goal):
+        return abs(source[0] - goal[0]) + abs(source[1] - goal[1])
 
-    openList = []
-    closedList = []
-    openListPositions = []
-    path = []
-    neighbours = [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (1, -1), (-1, 1), (1, 1)]
+    def return_index(self, items, position):
+        for i, item in enumerate(items):
+            if item.position == position:
+                return i
 
-    if maze[start[0]][start[1]] == 1 or maze[end[0]][end[1]] == 1:
-        print("Start and end points should in a walkable terrain")
-        return path
+    def return_path(self):
+        return self.path
 
-    heappush(openList, startNode)
-    openListPositions.append(startNode.position)
+    def find_path(self):
 
-    while len(openList) != 0:
+        neighbours = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+        if self.isNeighboursAllowed:
+            neighbours.extend([(-1, -1), (1, -1), (-1, 1), (1, 1)])
 
-        currentNode = heappop(openList)
-        closedList.append(currentNode.position)
-        openListPositions.remove(currentNode.position)
+        if self.maze[self.startPosition[0]][self.startPosition[1]] == 1 or self.maze[self.endPosition[0]][self.endPosition[1]] == 1:
+            print("Start and end points should in a walkable terrain")
+            return path
 
-        if currentNode.position == endNode.position:
-            while currentNode.parent != None:
-                path.append(currentNode)
-                currentNode = currentNode.parent
-            path.append(startNode)
-            return path[::-1]
+        heappush(self.openList, self.startNode)
+        self.openListPositions.append(self.startNode.position)
+
+        while len(self.openList) != 0:
+
+            currentNode = heappop(self.openList)
+            self.closedList.append(currentNode.position)
+            self.openListPositions.remove(currentNode.position)
+
+            if currentNode.position == self.endNode.position:
+                while currentNode.parent != None:
+                    self.path.append(currentNode.position)
+                    currentNode = currentNode.parent
+                self.path.append(self.startNode.position)
+                self.path = self.path[::-1]
+            
+            for neighbour in neighbours:
+
+                position = (currentNode.position[0] + neighbour[0], currentNode.position[1] + neighbour[1])
+                x, y = position
+                if x < 0 or y < 0 or x >= len(self.maze) or y >= len(self.maze[0]) or self.maze[x][y] == 1:
+                    continue
+                else:
+                    childNode = Node(position, currentNode)
         
-        for neighbour in neighbours:
+                if childNode.position in self.closedList:
+                    continue
 
-            position = (currentNode.position[0] + neighbour[0], currentNode.position[1] + neighbour[1])
-            x, y = position
-            if x < 0 or y < 0 or x >= len(maze) or y >= len(maze[0]) or maze[x][y] == 1:
-                continue
-            else:
-                childNode = Node(position, currentNode)
-    
-            if childNode.position in closedList:
-                continue
+                if neighbour in ((-1, -1), (1, -1), (-1, 1), (1, 1)):
+                    childNode.isDiagnol = True
 
-            if neighbour in ((-1, -1), (1, -1), (-1, 1), (1, 1)):
-                childNode.isDiagnol = True
+                gCost = currentNode.gCost + HORIZONTALCOST if not(childNode.isDiagnol) else currentNode.gCost + DIAGNOLCOST
+                hCost = self.manhattan_distance(childNode.position, self.endNode.position)
+                childNode.set_costs(gCost, hCost)
 
-            gCost = currentNode.gCost + HORIZONTALCOST if not(childNode.isDiagnol) else currentNode.gCost + DIAGNOLCOST
-            hCost = manhattan_distance(childNode.position, endNode.position)
-            childNode.set_costs(gCost, hCost)
-
-            if position in openListPositions:
-                index = return_index(openList, position)
-                if gCost < openList[index].gCost:
-                    del openList[index]
-                    heappush(openList, childNode)
-            else:
-                heappush(openList, childNode)
-                openListPositions.append(childNode.position)
-
-    return path
+                if position in self.openListPositions:
+                    index = self.return_index(self.openList, position)
+                    if gCost < self.openList[index].gCost:
+                        del self.openList[index]
+                        heappush(self.openList, childNode)
+                else:
+                    heappush(self.openList, childNode)
+                    self.openListPositions.append(childNode.position)
