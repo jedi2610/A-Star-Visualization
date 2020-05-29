@@ -1,5 +1,5 @@
 import argparse
-from astar import *
+from search import *
 # from display import *
 
 def main():
