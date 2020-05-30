@@ -1,5 +1,6 @@
 from heapq import heappop, heappush
 from time import sleep
+from math import sqrt
 from display import *
 
 HORIZONTALCOST = 10
@@ -17,7 +18,7 @@ class Node():
         self.set_costs(0, 0)
 
     def __repr__(self):
-        return f'Position: {self.position}\n'
+        return f'Position: {self.position} G Cost: {self.gCost} H Cost: {self.hCost} F Cost: {self.fCost}\n'
         # \nG Cost: {self.gCost}\nH Cost: {self.hCost}\nF Cost: {self.fCost}\n
 
     def __lt__(self, other):
@@ -38,21 +39,37 @@ class Node():
 
 class AStar:
 
-    def __init__(self, isNeighboursAllowed=True):
+    def __init__(self, maze, start, end, displayObject, heuristic='e', isNeighboursAllowed=True):
         self.openList = []
         self.closedList = []
         self.openListPositions = []
         self.path = []
-        self.screen = Display()
-        self.maze = self.screen.return_grid()
-        self.startPosition, self.endPosition = self.screen.return_start_and_end()
+        self.maze = maze
+        self.startPosition = start
+        self.endPosition = end
+        self.display = displayObject
+        self.heuristic = heuristic
         self.isNeighboursAllowed = isNeighboursAllowed
         self.startNode = Node(self.startPosition)
         self.endNode = Node(self.endPosition)
         self.find_path()
 
     def manhattan_distance(self, source, goal):
-        return abs(source[0] - goal[0]) + abs(source[1] - goal[1])
+        return (abs(source[0] - goal[0]) + abs(source[1] - goal[1])) * HORIZONTALCOST
+
+    def euclidean_distance(self, source, goal):
+        return sqrt(pow(abs(source[0] - goal[0]), 2) + pow(abs(source[1] - goal[1]), 2)) * HORIZONTALCOST
+
+    def diagnol_heuristic(self, start, goal):
+        dx = abs(start[0] - goal[0])
+        dy = abs(start[0] - goal[0])
+        return min(dx, dy) * DIAGNOLCOST + (max(dx, dy) - min(dx, dy)) * HORIZONTALCOST
+
+    def custom_heuristic(self, start, goal):
+        manhattanHeuristic = self.manhattan_distance(start, goal)
+        eucildeanHeuristic = self.euclidean_distance(start, goal)
+        diagnolHeuristic = self.diagnol_heuristic(start, goal)
+        return (manhattanHeuristic + eucildeanHeuristic + diagnolHeuristic) // 3
 
     def return_index(self, items, position):
         for i, item in enumerate(items):
@@ -63,7 +80,6 @@ class AStar:
         return self.path
 
     def find_path(self):
-
         neighbours = [(-1, 0), (1, 0), (0, -1), (0, 1)]
         if self.isNeighboursAllowed:
             neighbours.extend([(-1, -1), (1, -1), (-1, 1), (1, 1)])
@@ -85,10 +101,8 @@ class AStar:
                 while currentNode.parent != None:
                     self.path.append(currentNode.position)
                     currentNode = currentNode.parent
-                # self.path.pop(0)
                 self.path = self.path[::-1]
-                self.screen.draw_path(self.path)
-                sleep(20)
+                break
             
             for neighbour in neighbours:
 
@@ -105,8 +119,15 @@ class AStar:
                 if neighbour in ((-1, -1), (1, -1), (-1, 1), (1, 1)):
                     childNode.isDiagnol = True
 
-                gCost = currentNode.gCost + HORIZONTALCOST if not(childNode.isDiagnol) else currentNode.gCost + DIAGNOLCOST
-                hCost = self.manhattan_distance(childNode.position, self.endNode.position)
+                gCost = currentNode.gCost + HORIZONTALCOST if not (childNode.isDiagnol) else currentNode.gCost + DIAGNOLCOST
+                if self.heuristic == 'm':
+                    hCost = self.manhattan_distance(childNode.position, self.endNode.position)
+                elif self.heuristic == 'e':
+                    hCost = self.euclidean_distance(childNode.position, self.endNode.position)
+                elif self.heuristic == 'd':
+                    hCost = self.diagnol_heuristic(childNode.position, self.endNode.position)
+                else:
+                    hCost = self.custom_heuristic(childNode.position, self.endNode.position)
                 childNode.set_costs(gCost, hCost)
 
                 if position in self.openListPositions:
@@ -117,6 +138,4 @@ class AStar:
                 else:
                     heappush(self.openList, childNode)
                     self.openListPositions.append(childNode.position)
-
-            self.screen.update_screen(self.openListPositions, self.closedList)
-            # sleep(1)
+            self.display.update_screen(self.openListPositions, self.closedList)
