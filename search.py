@@ -1,4 +1,6 @@
 from heapq import heappop, heappush
+from time import sleep
+from display import *
 
 HORIZONTALCOST = 10
 DIAGNOLCOST = 14
@@ -36,17 +38,17 @@ class Node():
 
 class AStar:
 
-    def __init__(self, maze, start, end, isNeighboursAllowed=True):
+    def __init__(self, isNeighboursAllowed=True):
         self.openList = []
         self.closedList = []
         self.openListPositions = []
         self.path = []
+        self.screen = Display()
+        self.maze = self.screen.return_grid()
+        self.startPosition, self.endPosition = self.screen.return_start_and_end()
         self.isNeighboursAllowed = isNeighboursAllowed
-        self.maze = maze
-        self.startPosition = start
-        self.endPosition = end
-        self.startNode = Node(start)
-        self.endNode = Node(end)
+        self.startNode = Node(self.startPosition)
+        self.endNode = Node(self.endPosition)
         self.find_path()
 
     def manhattan_distance(self, source, goal):
@@ -83,8 +85,10 @@ class AStar:
                 while currentNode.parent != None:
                     self.path.append(currentNode.position)
                     currentNode = currentNode.parent
-                self.path.append(self.startNode.position)
+                # self.path.pop(0)
                 self.path = self.path[::-1]
+                self.screen.draw_path(self.path)
+                sleep(20)
             
             for neighbour in neighbours:
 
@@ -113,3 +117,6 @@ class AStar:
                 else:
                     heappush(self.openList, childNode)
                     self.openListPositions.append(childNode.position)
+
+            self.screen.update_screen(self.openListPositions, self.closedList)
+            # sleep(1)
