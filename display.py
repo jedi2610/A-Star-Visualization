@@ -125,6 +125,15 @@ class Display:
         pygame.draw.rect(self.display, RED, rect)
         pygame.display.update()
 
+    def display_not_found(self):
+
+        font = pygame.font.Font('freesansbold.ttf', 50)
+        text = font.render('No path found', True, RED, BLACK)
+        textRect = text.get_rect()
+        textRect.center = (WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2)
+        self.display.blit(text, textRect)
+        pygame.display.update()
+
     def dummy_cycle(self):
 
         isRunning = True

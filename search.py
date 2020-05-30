@@ -39,7 +39,7 @@ class Node():
 
 class AStar:
 
-    def __init__(self, maze, start, end, displayObject, heuristic='e', isNeighboursAllowed=True):
+    def __init__(self, maze, start, end, displayObject, heuristic, isDiagnolsAllowed):
         self.openList = []
         self.closedList = []
         self.openListPositions = []
@@ -49,7 +49,7 @@ class AStar:
         self.endPosition = end
         self.display = displayObject
         self.heuristic = heuristic
-        self.isNeighboursAllowed = isNeighboursAllowed
+        self.isDiagnolsAllowed = isDiagnolsAllowed
         self.startNode = Node(self.startPosition)
         self.endNode = Node(self.endPosition)
         self.find_path()
@@ -81,7 +81,7 @@ class AStar:
 
     def find_path(self):
         neighbours = [(-1, 0), (1, 0), (0, -1), (0, 1)]
-        if self.isNeighboursAllowed:
+        if self.isDiagnolsAllowed:
             neighbours.extend([(-1, -1), (1, -1), (-1, 1), (1, 1)])
 
         if self.maze[self.startPosition[0]][self.startPosition[1]] == 1 or self.maze[self.endPosition[0]][self.endPosition[1]] == 1:
