@@ -137,4 +137,4 @@ class AStar:
                 else:
                     heappush(self.openList, childNode)
                     self.openListPositions.append(childNode.position)
-            self.display.update_screen(self.openListPositions, self.closedList)
+            self.display.update_screen(self.openList, self.closedList)

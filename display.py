@@ -99,16 +99,58 @@ class Display:
 
             self.clock.tick(60)
 
-    def update_screen(self, openListPositions, closedListPositions):
+    def update_screen(self, openList, closedListPositions):
           
-        for position in openListPositions:
-            row, column = position
+        for node in openList:
+            row, column = node.position
             rect = pygame.Rect((MARGIN + BLOCKSIZE) * row + MARGIN, (MARGIN + BLOCKSIZE) * column + MARGIN, BLOCKSIZE, BLOCKSIZE)
-            if position == self.end:
+            if node.position == self.end:
                 pygame.draw.rect(self.display, RED, rect)
             else:
                 pygame.draw.rect(self.display, LIGHT_GREY, rect)
 
+            parentRow, parentCol = node.parent.position
+            x = (MARGIN + BLOCKSIZE) * row
+            y = (MARGIN + BLOCKSIZE) * column
+
+            if column > parentCol and row == parentRow:    # Right
+                pygame.draw.line(self.display, BLACK, (x+30, y+45), (x+30, y+15), 2)
+                pygame.draw.line(self.display, BLACK, (x+45, y+30), (x+30, y+15), 2)
+                pygame.draw.line(self.display, BLACK, (x+30, y+15), (x+15, y+30), 2)
+            elif column < parentCol and row == parentRow:    # Left
+                pygame.draw.line(self.display, BLACK, (x+30, y+15), (x+30, y+45), 2)
+                pygame.draw.line(self.display, BLACK, (x+15, y+30), (x+30, y+45), 2)
+                pygame.draw.line(self.display, BLACK, (x+30, y+45), (x+45, y+30), 2)
+            elif row > parentRow and column == parentCol:   # Bottom
+                pygame.draw.line(self.display, BLACK, (x+45, y+30), (x+15, y+30), 2)
+                pygame.draw.line(self.display, BLACK, (x+30, y+45), (x+15, y+30), 2)
+                pygame.draw.line(self.display, BLACK, (x+15, y+30), (x+30, y+15), 2)
+            elif row < parentRow and column == parentCol:     # Top
+                pygame.draw.line(self.display, BLACK, (x+15, y+30), (x+45, y+30), 2)
+                pygame.draw.line(self.display, BLACK, (x+30, y+15), (x+45, y+30), 2)
+                pygame.draw.line(self.display, BLACK, (x+45, y+30), (x+30, y+45), 2)
+            elif row < parentRow and column > parentCol:
+                # left top diag
+                pygame.draw.line(self.display, BLACK, (x+19.4, y+40.6), (x+40.6, y+19.4), 2)
+                pygame.draw.line(self.display, BLACK, (x+40.6, y+19.4), (x+30, y+19.4), 2)
+                pygame.draw.line(self.display, BLACK, (x + 40.6, y + 19.4), (x + 40.6, y + 30), 2)
+            elif row < parentRow and column < parentCol:
+                # left bottom diag
+                pygame.draw.line(self.display, BLACK, (x+19.4, y+19.4), (x+40.6, y+40.6), 2)
+                pygame.draw.line(self.display, BLACK, (x+40.6, y+40.6), (x+30, y+40.6), 2)
+                pygame.draw.line(self.display, BLACK, (x+40.6, y+40.6), (x+40.6, y+30), 2)
+            elif row > parentRow and column > parentCol:
+                # right top diag
+                pygame.draw.line(self.display, BLACK, (x+19.4, y+19.4), (x+40.6, y+40.6), 2)
+                pygame.draw.line(self.display, BLACK, (x+19.4, y+19.4), (x+19.4, y+30), 2)
+                pygame.draw.line(self.display, BLACK, (x + 19.4, y + 19.4), (x + 30, y + 19.4), 2)
+            elif row > parentRow and column < parentCol:
+                # right bottom diag
+                pygame.draw.line(self.display, BLACK, (x+19.4, y+40.6), (x+40.6, y+19.4), 2)
+                pygame.draw.line(self.display, BLACK, (x+19.4, y+40.6), (x+19.4, y+30), 2)
+                pygame.draw.line(self.display, BLACK, (x+19.4, y+40.6), (x+30, y+40.6), 2)
+            pygame.display.update()
+            
         for position in closedListPositions:
             row, column = position
             rect = pygame.Rect((MARGIN + BLOCKSIZE) * row + MARGIN, (MARGIN + BLOCKSIZE) * column + MARGIN, BLOCKSIZE, BLOCKSIZE)
