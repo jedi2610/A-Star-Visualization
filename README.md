@@ -22,6 +22,10 @@ optional arguments:
 * Boxes outlined with green color are present in the closed list.
 * Boxes filled with light grey are present in the open list.
 
+## Demo
+
+![nopathdemo](images/nopathdemo.gif)
+
 ## Supported heuristic methods
 
 ### Manhattan distance (m)
