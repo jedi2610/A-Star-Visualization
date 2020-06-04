@@ -14,9 +14,9 @@ def main(args):
     path = astar.return_path()
     if len(path) != 0:
         displayObject.draw_path(path)
+        displayObject.dummy_cycle()
     else:
         displayObject.display_not_found()
-    displayObject.dummy_cycle()
 
     if args.command:
         if len(path) == 0:

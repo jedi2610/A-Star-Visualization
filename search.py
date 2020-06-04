@@ -1,5 +1,4 @@
 from heapq import heappop, heappush
-from time import sleep
 from math import sqrt
 from display import *
 

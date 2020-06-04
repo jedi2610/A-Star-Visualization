@@ -1,6 +1,5 @@
 import pygame
 import numpy as np
-from time import sleep
 from pygame.locals import *
 
 BLACK = (0, 0, 0)
@@ -105,7 +104,10 @@ class Display:
         for position in openListPositions:
             row, column = position
             rect = pygame.Rect((MARGIN + BLOCKSIZE) * row + MARGIN, (MARGIN + BLOCKSIZE) * column + MARGIN, BLOCKSIZE, BLOCKSIZE)
-            pygame.draw.rect(self.display, LIGHT_GREY, rect)
+            if position == self.end:
+                pygame.draw.rect(self.display, RED, rect)
+            else:
+                pygame.draw.rect(self.display, LIGHT_GREY, rect)
 
         for position in closedListPositions:
             row, column = position
@@ -113,7 +115,15 @@ class Display:
             pygame.draw.rect(self.display, LIME, rect, 2)
 
         pygame.display.update()
-        # sleep(0.01)
+        isRunning = True
+        while isRunning:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    isRunning = False
+                    pygame.quit()
+                
+            isRunning = False        
+            self.clock.tick(10)
 
     def draw_path(self, path):
         for position in path:
@@ -121,18 +131,38 @@ class Display:
             rect = pygame.Rect((MARGIN + BLOCKSIZE) * row + MARGIN, (MARGIN + BLOCKSIZE) * column + MARGIN, BLOCKSIZE, BLOCKSIZE)
             pygame.draw.rect(self.display, DARK_GREEN, rect)
             pygame.display.update()
+            isRunning = True
+            while isRunning:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        isRunning = False
+                        pygame.quit()
+                    
+                isRunning = False        
+                self.clock.tick(20)
         rect = pygame.Rect((MARGIN + BLOCKSIZE) * row + MARGIN, (MARGIN + BLOCKSIZE) * column + MARGIN, BLOCKSIZE, BLOCKSIZE)
         pygame.draw.rect(self.display, RED, rect)
         pygame.display.update()
 
     def display_not_found(self):
 
-        font = pygame.font.Font('freesansbold.ttf', 50)
-        text = font.render('No path found', True, RED, BLACK)
-        textRect = text.get_rect()
-        textRect.center = (WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2)
-        self.display.blit(text, textRect)
-        pygame.display.update()
+        font = pygame.font.Font('freesansbold.ttf', 100)
+        count = 0
+        while True:
+            if count%2 == 0:
+                textColor = RED
+            else:
+                textColor = BLACK
+            text = font.render('NO PATH', True, textColor)
+            textRect = text.get_rect()
+            textRect.center = (WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2)
+            self.display.blit(text, textRect)
+            pygame.display.update()
+            count += 1
+            if count == 10:
+                break
+            self.clock.tick(2)
+        pygame.quit()
 
     def dummy_cycle(self):
 
